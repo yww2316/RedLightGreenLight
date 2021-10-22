@@ -2,38 +2,154 @@
 Python script to test prediction capabilities of the model
 on a live camera.
 '''
-
-import numpy as np
-import random
-import tensorflow as tf
-from keras.preprocessing.image import ImageDataGenerator
 from keras.models import load_model
+from ModelMetrics import F1_threshold
+import cv2
+from collections import deque
+import numpy as np
+import time
+# Define a function for attaching and saving predictions based off of a video.
+
+
+def predict_on_live_video(model, video_file_path, output_file_path,
+                          window_size, threshold_set):
+    '''
+    Using the computer's default camera, the streamed video
+    will have predictions made on it until the Escape key is pressed.
+
+    **Parameters:
+        model: A keras model instance
+            This is the model that will be generating predictions
+        video_file_path: *str, *int
+            The desired video file path. This should be 0
+            for accessing the webcam, or a directory if
+            predicting on a recorded video.
+        output_file_path: *str
+            The desired place for the recording of the predictions
+            to be saved.
+        window_size: *int
+            This is the parameter for how many frames should have
+            their predictions averaged for a single prediction.
+            This is a moving average so only the previous window_size
+            frames, including the present frame, are considered.
+        threshold_set: *int
+            The threshold by which a prediction is made. 
+    '''
+
+    # Initialize a Deque Object with a fixed size which will be used to
+    # implement moving/rolling average functionality.
+    predicted_labels_probabilities_deque = deque(maxlen=window_size)
+    color = []
+    predicted_class_name = 'Loading...'
+    image_height, image_width = 224, 224
+    # Reading the Video File using the VideoCapture Object
+    video_reader = cv2.VideoCapture(video_file_path)
+
+    # Getting the width and height of the video
+    original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
+    original_video_height = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    if video_file_path == 0:
+        fps = video_reader.get(cv2.CAP_PROP_FPS)
+        print(fps)
+    # Writing the Overlayed Video Files Using the VideoWriter Object
+    video_writer = cv2.VideoWriter(output_file_path,
+                                   cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
+                                   10, (original_video_width,
+                                        original_video_height))
+
+    while True:
+        # Reading The Frame
+        status, frame = video_reader.read()
+
+        if not status:
+            break
+
+        # Resize the Frame to fixed Dimensions
+        resized_frame = cv2.resize(frame, (image_height, image_width))
+        # Normalize the resized frame by dividing it with 255 so that each
+        # pixel value then lies between 0 and 1
+        normalized_frame = resized_frame / 255
+        # Passing the Image Normalized Frame to the model and
+        # receiving predicted Probabilities.
+        predicted_labels_probabilities = model.predict(np.expand_dims(
+            normalized_frame, axis=0))
+
+        # Appending predicted label probabilities to the deque object
+        predicted_labels_probabilities_deque.append(
+            predicted_labels_probabilities)
+
+        # Assuring that the Deque is completely filled before starting the
+        # averaging process
+        if len(predicted_labels_probabilities_deque) == window_size:
+
+            # Converting Predicted Labels Probabilities Deque into Numpy array
+            predicted_labels_probabilities_np = np.array(
+                predicted_labels_probabilities_deque)
+
+            # Calculating Average of Predicted Labels Probabilities Column Wise
+            predicted_labels_probabilities_averaged = \
+                predicted_labels_probabilities_np.mean(axis=0)
+
+            # Accessing The Class Name using predicted label.
+            if predicted_labels_probabilities_averaged[0][1] < threshold_set:
+                predicted_class_name = 'Jason'
+            else:
+                predicted_class_name = 'Other'
+
+            # Overlaying Class Name Text Ontop of the Frame, changing color to
+            # reflect whether the bottle is defective or not
+            if predicted_class_name == 'Jason':
+                color = (0, 255, 0)
+            else:
+                color = (0, 0, 255)
+
+            if predicted_labels_probabilities[0][1] < threshold_set:
+                color1 = (0, 255, 0)
+            else:
+                color1 = (0, 0, 255)
+
+            cv2.putText(frame, predicted_class_name, (200, 200),
+                        cv2.FONT_HERSHEY_SIMPLEX, 3, color, 2)
+            cv2.putText(frame,  str(predicted_labels_probabilities),
+                        (200, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, color1, 2)
+        time.sleep(0.5)
+        # Writing The Frame
+        video_writer.write(frame)
+
+        cv2.imshow('Predicted Frames', frame)
+        # Press Escape to exit the program
+        key_pressed = cv2.waitKey(1)
+
+        if key_pressed == 27:
+            break
+
+    cv2.destroyAllWindows()
+
+    # Closing the VideoCapture and VideoWriter objects and
+    # releasing all resources held by them.
+    video_reader.release()
+    video_writer.release()
+
 
 if __name__ == "__main__":
-    # define a set "random" number generator and set it
-    seed_constant = 42
-    np.random.seed(seed_constant)
-    random.seed(seed_constant)
-    tf.random.set_seed(seed_constant)
-
-    # Define an ImageDataGenerator object and specify what
-    # parameters to randomize each new epoch.
-    # Lowers or increases brightness by up to 50%
-    trdata = ImageDataGenerator(brightness_range=[0.5, 1.5],
-                                shear_range=0.2,  # shears the image up to 20%
-                                zoom_range=0.2)  # zooms in or out up to 20%
-    # width_shift_range=0.2,#shift the width up to 20%
-    # height_shift_range=0.2,#shift the height up to 20%
-    # rotation_range=180,#Rotate the image up to 270 degrees
-    # horizontal_flip=True,#May flip the image horizontally
-    # vertical_flip=True)#May flip the image vertically
-
-    traindata = trdata.flow_from_directory(directory='PicturesofFaces',
-                                           target_size=(256, 256),
-                                           shuffle=True)
-    saved_model = load_model("vallaccFace.h5")
-    saved_loss_model = load_model("vallossFace.h5")
+    # saved_model = load_model("vallaccFace.h5")
+    # saved_loss_model = load_model("vallossFace.h5")
 
     # Uncomment the line below if you're only interested
     # in making predictions with previously trained models.
-    model = load_model("FinalFaceModel.h5")
+    model = load_model("Model/FinalFaceModel.h5")
+    # threshold = F1_threshold('PicturesofFaces', model)
+    # print(threshold)
+
+    output_directory = 'ClassifiedVideo'
+    video_title = 'Live_Video'
+    window_size = 1
+    threshold_set = .5
+    # Set input_video_file_path to 0 to use webcam
+    input_video_file_path = 0
+    output_video_file_path = f'{output_directory}/{video_title}\
+        {window_size}.mp4'
+    print(output_video_file_path)
+    predict_on_live_video(model, input_video_file_path,
+                          output_video_file_path,
+                          window_size, threshold_set)

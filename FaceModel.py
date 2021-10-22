@@ -122,11 +122,11 @@ if __name__ == "__main__":
     model.compile(optimizer='Adam',
                   loss='categorical_crossentropy', metrics=['accuracy'])
     # Save model with highest validation accuracy.
-    mca = ModelCheckpoint("vallaccFace.h5", monitor='val_accuracy',
+    mca = ModelCheckpoint("Model/vallaccFace.h5", monitor='val_accuracy',
                           verbose=1, save_best_only=True,
                           save_weights_only=False, mode='auto')
     #  Save model with the lowest validation loss.
-    mcl = ModelCheckpoint("vallossFace.h5", monitor='val_loss',
+    mcl = ModelCheckpoint("Model/vallossFace.h5", monitor='val_loss',
                           verbose=1, save_best_only=True,
                           save_weights_only=False, mode='auto')
     # Stop training after validation loss stops improving enough.
@@ -141,7 +141,7 @@ if __name__ == "__main__":
                                   epochs=100, batch_size=32,
                                   callbacks=cb_list, shuffle=True)
         fold_no += 1
-    model.save("FinalFaceModel.h5")
+    model.save("Model/FinalFaceModel.h5")
     plt.plot(model_history.history["accuracy"])
     plt.plot(model_history.history['val_accuracy'])
     plt.plot(model_history.history['loss'])
