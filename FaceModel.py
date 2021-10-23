@@ -124,7 +124,7 @@ if __name__ == "__main__":
         '''
         Creates a resnet model that has over 15 million trainable
         parameters. This uses Adam as the optimizer and binary_crossentropy
-        as the loss function. Of note, the input shape is customizable and the 
+        as the loss function. Of note, the input shape is customizable and the
         integer parameter of the final dense layer corresponds to the number of
         desired classes.
 

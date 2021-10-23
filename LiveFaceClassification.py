@@ -33,7 +33,7 @@ def predict_on_live_video(model, video_file_path, output_file_path,
             This is a moving average so only the previous window_size
             frames, including the present frame, are considered.
         threshold_set: *int
-            The threshold by which a prediction is made. 
+            The threshold by which a prediction is made.
     '''
 
     # Initialize a Deque Object with a fixed size which will be used to
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     # Uncomment the line below if you're only interested
     # in making predictions with previously trained models.
-    model = load_model("Model/FinalFaceModel.h5")
+    model = load_model("Model/vallossFace.h5")
     # threshold = F1_threshold('PicturesofFaces', model)
     # print(threshold)
 

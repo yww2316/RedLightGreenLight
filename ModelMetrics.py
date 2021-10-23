@@ -62,6 +62,7 @@ def F1_threshold(directory, model):
     thresholds = arange(0, 1, 0.001)
     # evaluate each threshold
     scores = [f1_score(Y, to_labels(yhat, t)) for t in thresholds]
+    # scores = f1_score(Y, yhat)
     # get best threshold
     ix = argmax(scores)
     # print('Threshold=%.3f, F-Score=%.5f' % (thresholds[ix], scores[ix]))
@@ -75,6 +76,6 @@ if __name__ == "__main__":
 
     # Uncomment the line below if you're only interested
     # in making predictions with previously trained models.
-    model = load_model("Model/FinalFaceModel.h5")
+    model = load_model("Model/vallossFace.h5")
     threshold = F1_threshold('PicturesofFaces', model)
     print(threshold)
