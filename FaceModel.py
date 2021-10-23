@@ -6,17 +6,17 @@ from an inputted data set, trains a model, and uses different metrics
 to automatically tune the hyperparameters.
 '''
 # Resnet test Building Libraries
-from keras.models import Model
-from keras.layers import Input
 from keras.layers import Activation
 from keras.layers import Conv2D
-from tensorflow.keras.layers import AveragePooling2D
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dense
+from tensorflow import Tensor
 from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import ReLU
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import AveragePooling2D
+from tensorflow.keras.layers import Flatten
 from tensorflow.keras.models import Model
-from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.layers import Dense
 from keras.layers import add
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import EarlyStopping
@@ -100,27 +100,75 @@ if __name__ == "__main__":
     print(traindata.class_indices)
     # load the ResNet-50 network, ensuring the head FC layer sets are left off
     print("[INFO] preparing model...")
-    baseModel = ResNet50(weights="imagenet", include_top=False,
-                         input_tensor=Input(shape=(224, 224, 3)))
-    # construct the head of the model that will be placed on top of the
-    # the base model
-    headModel = baseModel.output
-    headModel = AveragePooling2D(pool_size=(7, 7))(headModel)
-    headModel = Flatten(name="flatten")(headModel)
-    headModel = Dense(256, activation="relu")(headModel)
-    headModel = Dropout(0.5)(headModel)
-    headModel = Dense(2, activation="softmax")(headModel)
-    # place the head FC model on top of the base model (this will become
-    # the actual model we will train)
-    model = Model(inputs=baseModel.input, outputs=headModel)
-    # loop over all layers in the base model and freeze them so they will
-    # *not* be updated during the training process
-    for layer in baseModel.layers:
-        layer.trainable = False
+    img_height = 224
+    img_width = 224
+    num_classes = 2
+
+    def relu_bn(inputs):
+        '''
+        Runs a tensor through relu and normalizes them.
+
+        **Parameters**
+            inputs: A keras tensor instance
+                This is the input tensor that will be normalized.
+
+        **Returns**
+            bn: A keras tensor instance
+                This is the output tensor that has been normalized.
+        '''
+        relu = ReLU()(inputs)
+        bn = BatchNormalization()(relu)
+        return bn
+
+    def create_plain_net():
+        '''
+        Creates a resnet model that has over 15 million trainable
+        parameters. This uses Adam as the optimizer and binary_crossentropy
+        as the loss function. Of note, the input shape is customizable and the 
+        integer parameter of the final dense layer corresponds to the number of
+        desired classes.
+
+        **Parameters**
+            None
+
+        **Returns**
+            model: A keras model instance
+                This is the compiled resnet model.
+        '''
+        inputs = Input(shape=(224, 224, 3))
+        num_filters = 64
+
+        t = BatchNormalization()(inputs)
+        t = Conv2D(kernel_size=3,
+                   strides=1,
+                   filters=num_filters,
+                   padding="same")(t)
+        t = relu_bn(t)
+
+        num_blocks_list = [4, 10, 10, 4]
+        for i in range(len(num_blocks_list)):
+            num_blocks = num_blocks_list[i]
+            for j in range(num_blocks):
+                downsample = (j == 0 and i != 0)
+                t = Conv2D(kernel_size=3,
+                           strides=(1 if not downsample else 2),
+                           filters=num_filters,
+                           padding="same")(t)
+                t = relu_bn(t)
+            num_filters *= 2
+        t = AveragePooling2D(4)(t)
+        t = Flatten()(t)
+        outputs = Dense(2, activation='sigmoid')(t)
+        model = Model(inputs, outputs)
+        model.compile(
+            optimizer='adam',
+            loss='binary_crossentropy',
+            metrics=['accuracy']
+        )
+        return model
     # summarize model
+    model = create_plain_net()
     model.summary()
-    model.compile(optimizer='Adam',
-                  loss='categorical_crossentropy', metrics=['accuracy'])
     # Save model with highest validation accuracy.
     mca = ModelCheckpoint("Model/vallaccFace.h5", monitor='val_accuracy',
                           verbose=1, save_best_only=True,
@@ -135,12 +183,10 @@ if __name__ == "__main__":
     cb_list = [es, mca, mcl]
     x, y = traindata.next()
     kfold = KFold(n_splits=5, shuffle=True)
-    fold_no = 1
     for train, test in kfold.split(x, y):
         model_history = model.fit(x[train], y[train], validation_split=0.3,
-                                  epochs=100, batch_size=32,
+                                  epochs=50, batch_size=32,
                                   callbacks=cb_list, shuffle=True)
-        fold_no += 1
     model.save("Model/FinalFaceModel.h5")
     plt.plot(model_history.history["accuracy"])
     plt.plot(model_history.history['val_accuracy'])

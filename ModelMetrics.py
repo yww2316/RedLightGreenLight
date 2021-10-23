@@ -70,9 +70,11 @@ def F1_threshold(directory, model):
 
 
 if __name__ == "__main__":
-    saved_model = load_model("Model/vallaccFace.h5")
-    saved_loss_model = load_model("Model/vallossFace.h5")
+    # saved_model = load_model("Model/vallaccFace.h5")
+    # saved_loss_model = load_model("Model/vallossFace.h5")
 
     # Uncomment the line below if you're only interested
     # in making predictions with previously trained models.
     model = load_model("Model/FinalFaceModel.h5")
+    threshold = F1_threshold('PicturesofFaces', model)
+    print(threshold)
