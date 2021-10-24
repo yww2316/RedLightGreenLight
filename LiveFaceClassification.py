@@ -12,7 +12,7 @@ import time
 
 
 def predict_on_live_video(model, video_file_path, output_file_path,
-                          window_size, threshold_set):
+                          window_size, threshold_set, timespan):
     '''
     Using the computer's default camera, the streamed video
     will have predictions made on it until the Escape key is pressed.
@@ -34,6 +34,9 @@ def predict_on_live_video(model, video_file_path, output_file_path,
             frames, including the present frame, are considered.
         threshold_set: *int
             The threshold by which a prediction is made.
+        timespan: *float
+            This is how long the prediction should last before
+            automatically terminating.
     '''
 
     # Initialize a Deque Object with a fixed size which will be used to
@@ -56,7 +59,7 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                                    cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
                                    10, (original_video_width,
                                         original_video_height))
-
+    total_time = 0
     while True:
         # Reading The Frame
         status, frame = video_reader.read()
@@ -91,7 +94,7 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                 predicted_labels_probabilities_np.mean(axis=0)
 
             # Accessing The Class Name using predicted label.
-            if predicted_labels_probabilities_averaged[0][1] < threshold_set:
+            if predicted_labels_probabilities_averaged[0][1] > threshold_set:
                 predicted_class_name = 'Jason'
             else:
                 predicted_class_name = 'Other'
@@ -103,7 +106,7 @@ def predict_on_live_video(model, video_file_path, output_file_path,
             else:
                 color = (0, 0, 255)
 
-            if predicted_labels_probabilities[0][1] < threshold_set:
+            if predicted_labels_probabilities[0][1] > threshold_set:
                 color1 = (0, 255, 0)
             else:
                 color1 = (0, 0, 255)
@@ -112,10 +115,12 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                         cv2.FONT_HERSHEY_SIMPLEX, 3, color, 2)
             cv2.putText(frame,  str(predicted_labels_probabilities),
                         (200, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, color1, 2)
-        time.sleep(0.5)
+        time.sleep(0.1)
+        total_time += 0.1
         # Writing The Frame
         video_writer.write(frame)
-
+        if total_time > timespan:
+            break
         cv2.imshow('Predicted Frames', frame)
         # Press Escape to exit the program
         key_pressed = cv2.waitKey(1)
@@ -143,8 +148,8 @@ if __name__ == "__main__":
 
     output_directory = 'ClassifiedVideo'
     video_title = 'Live_Video'
-    window_size = 1
-    threshold_set = .5
+    window_size = 5
+    threshold_set = .54039
     # Set input_video_file_path to 0 to use webcam
     input_video_file_path = 0
     output_video_file_path = f'{output_directory}/{video_title}\
@@ -152,4 +157,4 @@ if __name__ == "__main__":
     print(output_video_file_path)
     predict_on_live_video(model, input_video_file_path,
                           output_video_file_path,
-                          window_size, threshold_set)
+                          window_size, threshold_set, 15)
