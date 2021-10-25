@@ -7,7 +7,6 @@ from ModelMetrics import F1_threshold
 import cv2
 from collections import deque
 import numpy as np
-import time
 # Define a function for attaching and saving predictions based off of a video.
 
 

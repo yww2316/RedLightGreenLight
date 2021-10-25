@@ -13,12 +13,13 @@ import turtle
 
 
 def RedLightGreenLight(model, video_file_path, output_file_path,
-                       window_size, threshold_set):
+                       window_size, threshold_set, penalty_diff):
     '''
     Using the computer's default camera, the streamed video
     will have predictions made on it until the Escape key is pressed.
 
     **Parameters:
+
         model: A keras model instance
             This is the model that will be generating predictions
         video_file_path: *str, *int
@@ -35,9 +36,13 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             frames, including the present frame, are considered.
         threshold_set: *int
             The threshold by which a prediction is made.
-        timespan: *float
-            This is how long the prediction should last before
-            automatically terminating.
+        penalty_diff: *int
+            How many instances one can move forward before losing the game.
+
+    **Returns**
+
+        None
+
     '''
 
     # Initialize a Deque Object with a fixed size which will be used to
@@ -72,10 +77,10 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
     tess.shape('turtle')
     tess.color("hotpink")
     tess.pensize(5)
-    Lost = 0
     initial_green = 2
     green_flag = 1
-    while Lost == 0:
+    penalty = 0
+    while True:
         # Reading The Frame
         status, frame = video_reader.read()
 
@@ -112,6 +117,8 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             if predicted_labels_probabilities_averaged[0][1] > threshold_set:
                 predicted_class_name = 'Jason'
                 tess.forward(10)
+                if green_flag == 0:
+                    penalty += 1
             else:
                 predicted_class_name = 'Other'
 
@@ -143,15 +150,18 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
                 wn.bgcolor("lightgreen")
                 initial_green = random.randrange(2, 5)
                 green_flag = 1
-        position = turtle.position()
-        print(position)
+        position = tess.position()
         if position[0] > 250:
-            wn.textinput("YOU WIN", "Congratulations! You have won.")
+            turtle.write("You win!", False, align='center',
+                         font=('Arial', 40, 'normal'))
+            break
+        if penalty > penalty_diff:
+            turtle.write("You lose!", False, align='center',
+                         font=('Arial', 40, 'normal'))
             break
         # Writing The Frame
         video_writer.write(frame)
         cv2.imshow('Predicted Frames', frame)
-        print(total_time)
         # Press Escape to exit the program
         key_pressed = cv2.waitKey(1)
 
