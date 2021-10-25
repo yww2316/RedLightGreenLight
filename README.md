@@ -9,4 +9,4 @@ Access the data through
 https://livejohnshopkins-my.sharepoint.com/:f:/g/personal/jwu130_jh_edu/EmafTPbSDRtAiu2GmK5XcyIB_yq2u0qEx-XdrC_iMKy9aA?e=lCTWgQ
 
 Access the trained model through
-hhttps://livejohnshopkins-my.sharepoint.com/:f:/g/personal/jwu130_jh_edu/EgKg9PANR9NPkpw-J_FJf7cBr2E4h9n7EHZkrMe3ZnGbxQ?e=JvPwJJ
+https://livejohnshopkins-my.sharepoint.com/:f:/g/personal/jwu130_jh_edu/EgKg9PANR9NPkpw-J_FJf7cBr2E4h9n7EHZkrMe3ZnGbxQ?e=JvPwJJ
