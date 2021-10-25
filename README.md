@@ -1,6 +1,7 @@
 # SoftwareCarpentryFinalProject
 Repository for different code for the final project of software carpentry
-Here, I am I planning on doing a computer vision project, the topic of which I am not sure yet.
+Here, I am I planning on doing a computer vision project, one where the user can play RedLightGreenLight.
+To play the game, download this repository and download the 
 
 Access the data through
 ```
