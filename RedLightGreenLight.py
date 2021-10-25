@@ -190,10 +190,11 @@ if __name__ == "__main__":
     video_title = 'Live_Video'
     window_size = 1
     threshold_set = .54039
+    Difficulty = 5
     # Set input_video_file_path to 0 to use webcam
     input_video_file_path = 0
     output_video_file_path = f'{output_directory}/{video_title}\
         {window_size}.mp4'
     RedLightGreenLight(model, input_video_file_path,
                        output_video_file_path,
-                       window_size, threshold_set)
+                       window_size, threshold_set, Difficulty)
