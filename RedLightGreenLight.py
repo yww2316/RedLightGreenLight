@@ -3,7 +3,6 @@ Python script to test prediction capabilities of the model
 on a live camera.
 '''
 from keras.models import load_model
-from ModelMetrics import F1_threshold
 import cv2
 from collections import deque
 import numpy as np

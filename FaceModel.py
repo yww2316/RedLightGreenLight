@@ -6,9 +6,6 @@ from an inputted data set, trains a model, and uses different metrics
 to automatically tune the hyperparameters.
 '''
 # Resnet test Building Libraries
-from keras.layers import Activation
-from keras.layers import Conv2D
-from tensorflow import Tensor
 from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import ReLU
@@ -20,9 +17,9 @@ from tensorflow.keras.layers import Dense
 from keras.layers import add
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import EarlyStopping
+import tensorflow as tf
 import numpy as np
 import random
-import tensorflow as tf
 from keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import KFold
 
@@ -31,47 +28,71 @@ import matplotlib.pyplot as plt
 
 
 # function for creating an identity or projection residual module
-def residual_module(layer_in, n_filters):
+
+
+def relu_bn(inputs):
     '''
-    Using the resource provided by
-    https://www.pyimagesearch.com/2020/04/27/fine-tuning-resnet-with-
-    keras-tensorflow-and-deep-learning/,
-    I implemented the resnet model define here. I then
-    changed some of the activation and kernel_initializer parameters
-    to bette fit my desired data.
+    Runs a tensor through relu and normalizes them.
 
     **Parameters**
-
-        layer_in: *Keras Tensor Object*
-            The instantiated Keras tensor. One can specify the shape,
-            batch size, and other parameters as an input into the model.
-        n_filters: *int*
-            The number of filters within every layer except the first.
+        inputs: A keras tensor instance
+            This is the input tensor that will be normalized.
 
     **Returns**
-
-        layer_out: *Keras Tensor Object*
-            The output layer of the model.
+        bn: A keras tensor instance
+            This is the output tensor that has been normalized.
     '''
+    relu = ReLU()(inputs)
+    bn = BatchNormalization()(relu)
+    return bn
 
-    merge_input = layer_in
-    # check if the number of filters needs to be increase,
-    # assumes channels last format.
-    if layer_in.shape[-1] != n_filters:
-        merge_input = Conv2D(n_filters, (1, 1), padding='same',
-                             activation='relu',
-                             kernel_initializer='he_normal')(layer_in)
-    # conv1
-    conv1 = Conv2D(n_filters, (3, 3), padding='same', activation='relu',
-                   kernel_initializer='he_normal')(layer_in)
-    # conv2
-    conv2 = Conv2D(n_filters, (3, 3), padding='same', activation='linear',
-                   kernel_initializer='he_normal')(conv1)
-    # add filters, assumes filters/channels last
-    layer_out = add([conv2, merge_input])
-    # activation function
-    layer_out = Activation('relu')(layer_out)
-    return layer_out
+
+def create_plain_net():
+    '''
+    Creates a resnet model that has over 15 million trainable
+    parameters. This uses Adam as the optimizer and binary_crossentropy
+    as the loss function. Of note, the input shape is customizable and the
+    integer parameter of the final dense layer corresponds to the number of
+    desired classes.
+
+    **Parameters**
+        None
+
+    **Returns**
+        model: A keras model instance
+            This is the compiled resnet model.
+    '''
+    inputs = Input(shape=(224, 224, 3))
+    num_filters = 64
+
+    t = BatchNormalization()(inputs)
+    t = Conv2D(kernel_size=3,
+               strides=1,
+               filters=num_filters,
+               padding="same")(t)
+    t = relu_bn(t)
+
+    num_blocks_list = [4, 10, 10, 4]
+    for i in range(len(num_blocks_list)):
+        num_blocks = num_blocks_list[i]
+        for j in range(num_blocks):
+            downsample = (j == 0 and i != 0)
+            t = Conv2D(kernel_size=3,
+                       strides=(1 if not downsample else 2),
+                       filters=num_filters,
+                       padding="same")(t)
+            t = relu_bn(t)
+        num_filters *= 2
+    t = AveragePooling2D(4)(t)
+    t = Flatten()(t)
+    outputs = Dense(2, activation='sigmoid')(t)
+    model = Model(inputs, outputs)
+    model.compile(
+        optimizer='adam',
+        loss='binary_crossentropy',
+        metrics=['accuracy']
+    )
+    return model
 
 
 if __name__ == "__main__":
@@ -103,69 +124,6 @@ if __name__ == "__main__":
     img_height = 224
     img_width = 224
     num_classes = 2
-
-    def relu_bn(inputs):
-        '''
-        Runs a tensor through relu and normalizes them.
-
-        **Parameters**
-            inputs: A keras tensor instance
-                This is the input tensor that will be normalized.
-
-        **Returns**
-            bn: A keras tensor instance
-                This is the output tensor that has been normalized.
-        '''
-        relu = ReLU()(inputs)
-        bn = BatchNormalization()(relu)
-        return bn
-
-    def create_plain_net():
-        '''
-        Creates a resnet model that has over 15 million trainable
-        parameters. This uses Adam as the optimizer and binary_crossentropy
-        as the loss function. Of note, the input shape is customizable and the
-        integer parameter of the final dense layer corresponds to the number of
-        desired classes.
-
-        **Parameters**
-            None
-
-        **Returns**
-            model: A keras model instance
-                This is the compiled resnet model.
-        '''
-        inputs = Input(shape=(224, 224, 3))
-        num_filters = 64
-
-        t = BatchNormalization()(inputs)
-        t = Conv2D(kernel_size=3,
-                   strides=1,
-                   filters=num_filters,
-                   padding="same")(t)
-        t = relu_bn(t)
-
-        num_blocks_list = [4, 10, 10, 4]
-        for i in range(len(num_blocks_list)):
-            num_blocks = num_blocks_list[i]
-            for j in range(num_blocks):
-                downsample = (j == 0 and i != 0)
-                t = Conv2D(kernel_size=3,
-                           strides=(1 if not downsample else 2),
-                           filters=num_filters,
-                           padding="same")(t)
-                t = relu_bn(t)
-            num_filters *= 2
-        t = AveragePooling2D(4)(t)
-        t = Flatten()(t)
-        outputs = Dense(2, activation='sigmoid')(t)
-        model = Model(inputs, outputs)
-        model.compile(
-            optimizer='adam',
-            loss='binary_crossentropy',
-            metrics=['accuracy']
-        )
-        return model
     # summarize model
     model = create_plain_net()
     model.summary()
