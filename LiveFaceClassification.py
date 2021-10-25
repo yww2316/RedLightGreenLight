@@ -115,7 +115,6 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                         cv2.FONT_HERSHEY_SIMPLEX, 3, color, 2)
             cv2.putText(frame,  str(predicted_labels_probabilities),
                         (200, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, color1, 2)
-        time.sleep(0.1)
         total_time += 0.1
         # Writing The Frame
         video_writer.write(frame)
@@ -148,7 +147,7 @@ if __name__ == "__main__":
 
     output_directory = 'ClassifiedVideo'
     video_title = 'Live_Video'
-    window_size = 5
+    window_size = 1
     threshold_set = .54039
     # Set input_video_file_path to 0 to use webcam
     input_video_file_path = 0
