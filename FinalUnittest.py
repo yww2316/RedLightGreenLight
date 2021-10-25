@@ -4,6 +4,7 @@ from RedLightGreenLight import *
 from LiveFaceClassification import *
 import unittest
 import tensorflow as tf
+import os
 
 
 class bffTest(unittest.TestCase):
@@ -20,23 +21,40 @@ class bffTest(unittest.TestCase):
         self.penalty_diff = 1
 
     def testcheck_plain_net(self):
+        '''
+        Check to see if create_plain_net throws any errors while producing a
+        model.
+        '''
         self.assertTrue(create_plain_net())
 
     def testrelu_bn(self):
+        '''
+        Checks to see if relu_bn outputs a keras tensor.
+        '''
         self.assertTrue(tf.keras.backend.is_keras_tensor(relu_bn(self.Tensor)))
 
     def testRedLightGreenLight(self):
+        '''
+        Checks to see if RedLightGreenLight runs, doesn't throw any errors,
+        and returns nothing.
+        '''
         self.assertEqual(RedLightGreenLight(self.model, self.video_file_path,
                          self.output_file_path,
                          self.window_size, self.threshold_set,
                          self.penalty_diff), None)
+        os.remove(self.output_file_path)
 
     def testpredict_on_live_video(self):
+        '''
+        Checks to see if predict_on_live_video runs, doesn't throw any errors,
+        and returns nothing.
+        '''
         self.assertEqual(predict_on_live_video(self.model,
                          self.video_file_path,
                          self.output_file_path,
                          self.window_size, self.threshold_set,
                          self.penalty_diff), None)
+        os.remove(self.output_file_path)
 
 
 if __name__ == "__main__":
