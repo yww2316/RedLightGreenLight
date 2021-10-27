@@ -121,9 +121,6 @@ if __name__ == "__main__":
     print(traindata.class_indices)
     # load the ResNet-50 network, ensuring the head FC layer sets are left off
     print("[INFO] preparing model...")
-    img_height = 224
-    img_width = 224
-    num_classes = 2
     # summarize model
     model = create_plain_net()
     model.summary()

@@ -6,6 +6,9 @@ from keras.models import load_model
 import cv2
 from collections import deque
 import numpy as np
+import requests
+import imutils
+
 # Define a function for attaching and saving predictions based off of a video.
 
 
@@ -49,9 +52,6 @@ def predict_on_live_video(model, video_file_path, output_file_path,
     # Getting the width and height of the video
     original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
     original_video_height = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    if video_file_path == 0:
-        fps = video_reader.get(cv2.CAP_PROP_FPS)
-        print(fps)
     # Writing the Overlayed Video Files Using the VideoWriter Object
     video_writer = cv2.VideoWriter(output_file_path,
                                    cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
@@ -59,11 +59,17 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                                         original_video_height))
     total_time = 0
     while True:
-        # Reading The Frame
-        status, frame = video_reader.read()
-
-        if not status:
-            break
+        if video_file_path == 1:
+            # Get The Frame
+            img_resp = requests.get(url)
+            img_arr = np.array(bytearray(img_resp.content))
+            img = cv2.imdecode(img_arr, -1)
+            frame = imutils.resize(img, width=1920, height=1080)
+        else:
+            # Reading The Frame
+            status, frame = video_reader.read()
+            if not status:
+                break
 
         # Resize the Frame to fixed Dimensions
         resized_frame = cv2.resize(frame, (image_height, image_width))
@@ -93,13 +99,13 @@ def predict_on_live_video(model, video_file_path, output_file_path,
 
             # Accessing The Class Name using predicted label.
             if predicted_labels_probabilities_averaged[0][1] > threshold_set:
-                predicted_class_name = 'Jason'
+                predicted_class_name = 'Human'
             else:
                 predicted_class_name = 'Other'
 
-            # Overlaying Class Name Text Ontop of the Frame, changing color to
+            # Overlaying Class Name Text On top of the frame, changing color to
             # reflect whether the bottle is defective or not
-            if predicted_class_name == 'Jason':
+            if predicted_class_name == 'Human':
                 color = (0, 255, 0)
             else:
                 color = (0, 0, 255)
@@ -134,24 +140,22 @@ def predict_on_live_video(model, video_file_path, output_file_path,
 
 
 if __name__ == "__main__":
-    # saved_model = load_model("vallaccFace.h5")
-    # saved_loss_model = load_model("vallossFace.h5")
+    # Replace the below URL with your own. Make sure to add "/shot.jpg"
+    # at the end
+    url = "http://10.203.175.80:8080/shot.jpg"
 
-    # Uncomment the line below if you're only interested
-    # in making predictions with previously trained models.
+    # Load the desired model here
     model = load_model("Model/vallossFace.h5")
-    # threshold = F1_threshold('PicturesofFaces', model)
-    # print(threshold)
-
     output_directory = 'ClassifiedVideo'
     video_title = 'Live_Video'
     window_size = 1
     threshold_set = .54039
-    # Set input_video_file_path to 0 to use webcam
-    input_video_file_path = 0
+    # Set input_video_file_path to 0 to use webcam or 1 to use phone
+    # camera
+
+    input_video_file_path = 1
     output_video_file_path = f'{output_directory}/{video_title}\
         {window_size}.mp4'
-    print(output_video_file_path)
     predict_on_live_video(model, input_video_file_path,
                           output_video_file_path,
                           window_size, threshold_set, 15)

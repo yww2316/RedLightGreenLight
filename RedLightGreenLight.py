@@ -37,6 +37,7 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             The threshold by which a prediction is made.
         penalty_diff: *int
             How many instances one can move forward before losing the game.
+            0 is almost impossible, and 10 is very easy.
 
     **Returns**
 
@@ -56,9 +57,6 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
     # Getting the width and height of the video
     original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
     original_video_height = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    if video_file_path == 0:
-        fps = video_reader.get(cv2.CAP_PROP_FPS)
-        print(fps)
     # Writing the Overlayed Video Files Using the VideoWriter Object
     video_writer = cv2.VideoWriter(output_file_path,
                                    cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
@@ -114,7 +112,7 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
 
             # Accessing The Class Name using predicted label.
             if predicted_labels_probabilities_averaged[0][1] > threshold_set:
-                predicted_class_name = 'Jason'
+                predicted_class_name = 'Human'
                 tess.forward(10)
                 if green_flag == 0:
                     penalty += 1
@@ -123,7 +121,7 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
 
             # Overlaying class name text on top of the Frame, changing color to
             # reflect whether Jason is shown or not
-            if predicted_class_name == 'Jason':
+            if predicted_class_name == 'Human':
                 color = (0, 255, 0)
             else:
                 color = (0, 0, 255)
@@ -189,7 +187,7 @@ if __name__ == "__main__":
     video_title = 'Live_Video'
     window_size = 1
     threshold_set = .54039
-    Difficulty = 5
+    Difficulty = 10
     # Set input_video_file_path to 0 to use webcam
     input_video_file_path = 0
     output_video_file_path = f'{output_directory}/{video_title}\
