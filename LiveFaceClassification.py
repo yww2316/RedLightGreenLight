@@ -13,7 +13,7 @@ import imutils
 
 
 def predict_on_live_video(model, video_file_path, output_file_path,
-                          window_size, threshold_set, timespan):
+                          window_size, threshold_set, timespan, url):
     '''
     Using the computer's default camera, the streamed video
     will have predictions made on it until the Escape key is pressed.
@@ -38,6 +38,8 @@ def predict_on_live_video(model, video_file_path, output_file_path,
         timespan: *float
             This is how long the prediction should last before
             automatically terminating.
+        url: *string
+            The url for the IPWebcam video on your android device.
     '''
 
     # Initialize a Deque Object with a fixed size which will be used to
@@ -119,7 +121,8 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                         cv2.FONT_HERSHEY_SIMPLEX, 3, color, 2)
             cv2.putText(frame,  str(predicted_labels_probabilities),
                         (200, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, color1, 2)
-        total_time += 0.1
+        if video_file_path == 0 or video_file_path == 1:
+            total_time += 0.1
         # Writing The Frame
         video_writer.write(frame)
         if total_time > timespan:
@@ -152,10 +155,9 @@ if __name__ == "__main__":
     threshold_set = .54039
     # Set input_video_file_path to 0 to use webcam or 1 to use phone
     # camera
-
     input_video_file_path = 1
     output_video_file_path = f'{output_directory}/{video_title}\
         {window_size}.mp4'
     predict_on_live_video(model, input_video_file_path,
                           output_video_file_path,
-                          window_size, threshold_set, 15)
+                          window_size, threshold_set, 15, url)
