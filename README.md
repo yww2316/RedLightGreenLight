@@ -16,3 +16,9 @@ Note: You will have to have tensor flow installed. To do so, run this in the ter
 ```
 pip install --ignore-installed --upgrade tensorflow
 ```
+
+Inspirations for parts of the code are linked below:
+
+Resnet Model Architecture in Keras: https://towardsdatascience.com/building-a-resnet-in-keras-e8f1322a49ba
+Video Classification from a youtube video: https://learnopencv.com/introduction-to-video-classification-and-human-activity-recognition/
+
