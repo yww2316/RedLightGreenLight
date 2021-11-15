@@ -19,6 +19,7 @@ class bffTest(unittest.TestCase):
         self.window_size = 25
         self.threshold_set = .5
         self.penalty_diff = 1
+        self.url = "http://10.203.175.80:8080/shot.jpg"
 
     def testcheck_plain_net(self):
         '''
@@ -53,7 +54,7 @@ class bffTest(unittest.TestCase):
                          self.video_file_path,
                          self.output_file_path,
                          self.window_size, self.threshold_set,
-                         self.penalty_diff), None)
+                         self.penalty_diff, self.url), None)
         os.remove(self.output_file_path)
 
 
