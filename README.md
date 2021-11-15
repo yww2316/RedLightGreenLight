@@ -11,10 +11,11 @@ https://livejohnshopkins-my.sharepoint.com/:f:/g/personal/jwu130_jh_edu/EmafTPbS
 Access the trained model through
 https://livejohnshopkins-my.sharepoint.com/:f:/g/personal/jwu130_jh_edu/EgKg9PANR9NPkpw-J_FJf7cBr2E4h9n7EHZkrMe3ZnGbxQ?e=JvPwJJ
 
-Note: You will have to have tensor flow installed. To do so, run this in the terminal:
+Note: You will have to have tensorflow and playsound installed. To do so, run this in the terminal:
 
 ```
 pip install --ignore-installed --upgrade tensorflow
+pip install playsound
 ```
 
 Inspirations for parts of the code are linked below:

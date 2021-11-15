@@ -8,6 +8,7 @@ from collections import deque
 import numpy as np
 import random
 import turtle
+from playsound import playsound
 # Define a function for attaching and saving predictions based off of a video.
 
 
@@ -140,11 +141,13 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             if green_flag == 1:
                 total_time = 0
                 wn.bgcolor("red")
+                playsound('RedLight.mp3')
                 initial_green = random.randrange(2, 5)
                 green_flag = 0
             else:
                 total_time = 0
                 wn.bgcolor("lightgreen")
+                playsound('GreenLight.wav')
                 initial_green = random.randrange(2, 5)
                 green_flag = 1
         position = tess.position()
