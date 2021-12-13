@@ -144,7 +144,10 @@ def predict_on_live_video(model, video_file_path, output_file_path,
 
 if __name__ == "__main__":
     # Replace the below URL with your own. Make sure to add "/shot.jpg"
-    # at the end
+    # at the end. Note that this requires the download of IPWebcam onto a
+    # compatible device.
+    # You can download IPWebcam at
+    # https://play.google.com/store/apps/details?id=com.pas.webcam&hl=en_US&gl=US
     url = "http://10.203.175.80:8080/shot.jpg"
 
     # Load the desired model here
@@ -155,7 +158,7 @@ if __name__ == "__main__":
     threshold_set = .54039
     # Set input_video_file_path to 0 to use webcam or 1 to use phone
     # camera
-    input_video_file_path = 1
+    input_video_file_path = 0
     output_video_file_path = f'{output_directory}/{video_title}\
         {window_size}.mp4'
     predict_on_live_video(model, input_video_file_path,
