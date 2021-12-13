@@ -16,7 +16,8 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                           window_size, threshold_set, timespan, url):
     '''
     Using the computer's default camera, the streamed video
-    will have predictions made on it until the Escape key is pressed.
+    will have predictions made on it until the Escape key is pressed or
+    until the given timespan is reached.
 
     **Parameters:
         model: A keras model instance
@@ -36,10 +37,10 @@ def predict_on_live_video(model, video_file_path, output_file_path,
         threshold_set: *int
             The threshold by which a prediction is made.
         timespan: *float
-            This is how long the prediction should last before
-            automatically terminating.
+            This is how long in seconds the video classification script
+            will run before automatically terminating.
         url: *string
-            The url for the IPWebcam video on your android device.
+            The url for the IPWebcam video on your compatible device.
     '''
 
     # Initialize a Deque Object with a fixed size which will be used to
