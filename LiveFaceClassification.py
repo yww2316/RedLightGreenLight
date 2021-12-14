@@ -147,11 +147,12 @@ def predict_on_live_video(model, video_file_path, output_file_path,
 
 
 if __name__ == "__main__":
-    # Replace the below URL with your own. Make sure to add "/shot.jpg"
-    # at the end. Note that this requires the download of IPWebcam onto a
+    # Replace the below URL with your own url after IPv4 once you have started
+    # the server. Make sure to add "/shot.jpg"at the end.
+    # Note that this requires the download of IPWebcam onto a
     # compatible device.
     # You can download IPWebcam at
-    # https://play.google.com/store/apps/details?id=com.pas.webcam&hl=en_US&gl=US
+    # https://play.google.com/store/apps/details?id=com.pas.webcam&hl=en_US&gl=US.
     url = "http://10.203.175.80:8080/shot.jpg"
 
     # Load the desired model here
