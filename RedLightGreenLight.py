@@ -23,11 +23,8 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             This is the model that will be generating predictions
         video_file_path: *str, *int
             The desired video file path. This should be 0
-            for accessing a computer webcam, 1 if accessing
-            a phone camera, or a string containing the desired
-            directory if predicting on a recorded video. It is recommended
-            to use 0 or a string, as latency issues may
-            occur with the use of a phone camera.
+            for accessing a computer webcamor a string containing the desired
+            directory if predicting on a recorded video.
         output_file_path: *str
             The desired place for the recording of the predictions
             to be saved.
@@ -49,6 +46,8 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
 
     if type(video_file_path) is not str and type(video_file_path) is not int:
         raise Exception('Please use a valid video_file_path.')
+    if window_size < 1:
+        raise Exception('Please use a window_size of 1 or greater.')
     # Initialize a Deque Object with a fixed size which will be used to
     # implement moving/rolling average functionality.
     predicted_labels_probabilities_deque = deque(maxlen=window_size)
@@ -189,7 +188,7 @@ if __name__ == "__main__":
     window_size = 1
     threshold_set = .54039
     Difficulty = 10
-    # Set input_video_file_path to 0 to use webcam
+    # Set input_video_file_path to 0 to use a computer webcam.
     input_video_file_path = 0
     output_video_file_path = f'{output_directory}/{video_title}\
         {window_size}.mp4'

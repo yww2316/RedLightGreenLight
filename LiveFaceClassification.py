@@ -40,7 +40,7 @@ def predict_on_live_video(model, video_file_path, output_file_path,
         timespan: *float
             This is how long in seconds the video classification script
             will run before automatically terminating.
-        url: *string
+        url: *str
             The url for the IPWebcam video on your compatible device.
     '''
 
@@ -48,6 +48,8 @@ def predict_on_live_video(model, video_file_path, output_file_path,
     # implement moving/rolling average functionality.
     if type(video_file_path) is not str and type(video_file_path) is not int:
         raise Exception('Please use a valid video_file_path.')
+    if window_size < 1:
+        raise Exception('Please use a window_size of 1 or greater.')
     predicted_labels_probabilities_deque = deque(maxlen=window_size)
     color = []
     predicted_class_name = 'Loading...'
@@ -162,7 +164,8 @@ if __name__ == "__main__":
     window_size = 1
     threshold_set = .54039
     # Set input_video_file_path to 0 to use webcam or 1 to use phone
-    # camera
+    # camera. input_video_file_path can also be a string with the directory
+    # of a video file.
     input_video_file_path = 0
     output_video_file_path = f'{output_directory}/{video_title}\
         {window_size}.mp4'
