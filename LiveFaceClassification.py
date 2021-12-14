@@ -24,8 +24,9 @@ def predict_on_live_video(model, video_file_path, output_file_path,
             This is the model that will be generating predictions
         video_file_path: *str, *int
             The desired video file path. This should be 0
-            for accessing the webcam, or a directory if
-            predicting on a recorded video.
+            for accessing a computer webcam, 1 if accessing
+            a phone camera, or a string containing the desired
+            directory if predicting on a recorded video.
         output_file_path: *str
             The desired place for the recording of the predictions
             to be saved.
@@ -45,6 +46,8 @@ def predict_on_live_video(model, video_file_path, output_file_path,
 
     # Initialize a Deque Object with a fixed size which will be used to
     # implement moving/rolling average functionality.
+    if type(video_file_path) is not str and type(video_file_path) is not int:
+        raise Exception('Please use a valid video_file_path.')
     predicted_labels_probabilities_deque = deque(maxlen=window_size)
     color = []
     predicted_class_name = 'Loading...'
@@ -107,7 +110,7 @@ def predict_on_live_video(model, video_file_path, output_file_path,
                 predicted_class_name = 'Other'
 
             # Overlaying Class Name Text On top of the frame, changing color to
-            # reflect whether the bottle is defective or not
+            # reflect whether a human is detected or not.
             if predicted_class_name == 'Human':
                 color = (0, 255, 0)
             else:

@@ -9,7 +9,6 @@ import numpy as np
 import random
 import turtle
 from playsound import playsound
-# Define a function for attaching and saving predictions based off of a video.
 
 
 def RedLightGreenLight(model, video_file_path, output_file_path,
@@ -24,8 +23,11 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             This is the model that will be generating predictions
         video_file_path: *str, *int
             The desired video file path. This should be 0
-            for accessing the webcam, or a directory if
-            predicting on a recorded video.
+            for accessing a computer webcam, 1 if accessing
+            a phone camera, or a string containing the desired
+            directory if predicting on a recorded video. It is recommended
+            to use 0 or a string, as latency issues may
+            occur with the use of a phone camera.
         output_file_path: *str
             The desired place for the recording of the predictions
             to be saved.
@@ -43,9 +45,10 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
     **Returns**
 
         None
-
     '''
 
+    if type(video_file_path) is not str and type(video_file_path) is not int:
+        raise Exception('Please use a valid video_file_path.')
     # Initialize a Deque Object with a fixed size which will be used to
     # implement moving/rolling average functionality.
     predicted_labels_probabilities_deque = deque(maxlen=window_size)
@@ -121,7 +124,7 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
                 predicted_class_name = 'Other'
 
             # Overlaying class name text on top of the Frame, changing color to
-            # reflect whether Jason is shown or not
+            # reflect whether a human is shown or not
             if predicted_class_name == 'Human':
                 color = (0, 255, 0)
             else:
@@ -137,6 +140,7 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             cv2.putText(frame,  str(predicted_labels_probabilities),
                         (200, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, color1, 2)
         total_time += 0.3
+        # Change the color based off the total_time.
         if total_time > initial_green:
             if green_flag == 1:
                 total_time = 0
@@ -151,6 +155,7 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
                 initial_green = random.randrange(2, 5)
                 green_flag = 1
         position = tess.position()
+        # Check to see if the player has won or lost.
         if position[0] > 250:
             turtle.write("You win!", False, align='center',
                          font=('Arial', 40, 'normal'))
@@ -177,15 +182,8 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
 
 
 if __name__ == "__main__":
-    # saved_model = load_model("vallaccFace.h5")
-    # saved_loss_model = load_model("vallossFace.h5")
 
-    # Uncomment the line below if you're only interested
-    # in making predictions with previously trained models.
     model = load_model("Model/vallossFace.h5")
-    # threshold = F1_threshold('PicturesofFaces', model)
-    # print(threshold)
-
     output_directory = 'ClassifiedVideo'
     video_title = 'Live_Video'
     window_size = 1

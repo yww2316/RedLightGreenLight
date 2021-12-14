@@ -27,9 +27,6 @@ from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
 
 
-# function for creating an identity or projection residual module
-
-
 def relu_bn(inputs):
     '''
     Runs a tensor through relu and normalizes them.
@@ -104,8 +101,7 @@ if __name__ == "__main__":
 
     # Define an ImageDataGenerator object and specify what
     # parameters to randomize each new epoch.
-    # Lowers or increases brightness by up to 50%
-    trdata = ImageDataGenerator(brightness_range=[0.5, 1.5],
+    trdata = ImageDataGenerator(brightness_range=[0.5, 1.5],  # Brightness
                                 shear_range=0.2,  # shears the image up to 20%
                                 zoom_range=0.2)  # zooms in or out up to 20%
     # width_shift_range=0.2,#shift the width up to 20%
