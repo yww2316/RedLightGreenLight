@@ -6,11 +6,11 @@ To play the game, download this repository and download the Model folder from th
 For the game, you can set your own difficulty under the Difficulty parameter, where 1 is very hard and 10 is very easy. To go forward, put your face in front of the camera. To stop, either cover your face or cover the camera. You may have to adjust the threshold_set parameter based off of your own camera.
 To train your own model, download the PictureofFaces folder into the repository and change what data is inside the subfolders. The name of the classes will correspond to the names of the folders within the subdirectories of the PictureofFaces folder.
 
-Note: You will have to have tensorflow and playsound installed to run these python files. To do so, run this in the terminal:
+Note: You will have to have tensorflow and opencv installed to run these python files. To do so, run this in the terminal:
 
 ```
 pip install --ignore-installed --upgrade tensorflow
-pip install playsound
+pip install opencv-python
 ```
 
 Access the Model Folder through

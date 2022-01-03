@@ -8,7 +8,7 @@ from collections import deque
 import numpy as np
 import random
 import turtle
-from playsound import playsound
+# from playsound import playsound
 
 
 def RedLightGreenLight(model, video_file_path, output_file_path,
@@ -23,7 +23,7 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             This is the model that will be generating predictions
         video_file_path: *str, *int
             The desired video file path. This should be 0
-            for accessing a computer webcamor a string containing the desired
+            for accessing a computer webcam or a string containing the desired
             directory if predicting on a recorded video.
         output_file_path: *str
             The desired place for the recording of the predictions
@@ -144,13 +144,13 @@ def RedLightGreenLight(model, video_file_path, output_file_path,
             if green_flag == 1:
                 total_time = 0
                 wn.bgcolor("red")
-                playsound('RedLight.mp3')
+                # playsound('RedLight.mp3')
                 initial_green = random.randrange(2, 5)
                 green_flag = 0
             else:
                 total_time = 0
                 wn.bgcolor("lightgreen")
-                playsound('GreenLight.wav')
+                # playsound('GreenLight.wav')
                 initial_green = random.randrange(2, 5)
                 green_flag = 1
         position = tess.position()
